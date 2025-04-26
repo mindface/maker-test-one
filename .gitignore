@@ -1,0 +1,55 @@
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+apps/*/.next/
+apps/*/out/
+apps/*/out/
+
+apps/api/node_modules
+
+# System
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+apps/*/.env
+apps/*/.env.local
+apps/*/.env.*.local
+
+
+
+# Logs
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Tailwind cache
+.tailwind-cache/
+apps/*/.tailwind-cache/
+
+# TypeScript cache
+*.tsbuildinfo
+apps/*/*.tsbuildinfo
+
+# Coverage (if any test runner)
+coverage/
+apps/*/coverage/
+
+
