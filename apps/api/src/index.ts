@@ -7,6 +7,29 @@ import { Task, TaskSchema } from '@maker-test-one/schema/src/models';
 const app = new Koa();
 const router = new Router();
 
+// CORSの設定
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Next.jsの開発サーバーのオリジン
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type'],
+    credentials: true,
+  })
+);
+
+// エラーハンドリングミドルウェア
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err: any) {
+    console.error('Error:', err);
+    ctx.status = err.status || 500;
+    ctx.body = {
+      error: err.message || 'Internal server error',
+    };
+  }
+});
+
 // メモリ内のデータストア（実際のアプリケーションではデータベースを使用）
 let tasks: Task[] = [
   {
@@ -21,12 +44,12 @@ let tasks: Task[] = [
 ];
 
 // タスク一覧の取得
-router.get('/api/tasks', (ctx: Router.RouterContext) => {
+router.get('/tasks', (ctx: Router.RouterContext) => {
   ctx.body = tasks;
 });
 
 // タスクの詳細取得
-router.get('/api/tasks/:id', (ctx: Router.RouterContext) => {
+router.get('/tasks/:id', (ctx: Router.RouterContext) => {
   const task = tasks.find((t) => t.id === Number(ctx.params.id));
   if (!task) {
     ctx.status = 404;
@@ -37,7 +60,7 @@ router.get('/api/tasks/:id', (ctx: Router.RouterContext) => {
 });
 
 // タスクの作成
-router.post('/api/tasks', async (ctx: Router.RouterContext) => {
+router.post('/tasks', async (ctx: Router.RouterContext) => {
   try {
     const data = await TaskSchema.parseAsync(ctx.request.body);
     const newTask: Task = {
@@ -56,7 +79,7 @@ router.post('/api/tasks', async (ctx: Router.RouterContext) => {
 });
 
 // タスクの更新
-router.put('/api/tasks/:id', async (ctx: Router.RouterContext) => {
+router.put('/tasks/:id', async (ctx: Router.RouterContext) => {
   const taskIndex = tasks.findIndex((t) => t.id === Number(ctx.params.id));
   if (taskIndex === -1) {
     ctx.status = 404;
@@ -80,7 +103,7 @@ router.put('/api/tasks/:id', async (ctx: Router.RouterContext) => {
 });
 
 // タスクの削除
-router.delete('/api/tasks/:id', (ctx: Router.RouterContext) => {
+router.delete('/tasks/:id', (ctx: Router.RouterContext) => {
   const taskIndex = tasks.findIndex((t) => t.id === Number(ctx.params.id));
   if (taskIndex === -1) {
     ctx.status = 404;
@@ -93,7 +116,6 @@ router.delete('/api/tasks/:id', (ctx: Router.RouterContext) => {
 });
 
 // ミドルウェアの設定
-app.use(cors());
 app.use(bodyParser());
 app.use(router.routes());
 app.use(router.allowedMethods());

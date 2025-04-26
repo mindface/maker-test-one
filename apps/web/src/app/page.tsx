@@ -1,6 +1,45 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@maker-test-one/ui/src/components/button';
+import { Input } from '@maker-test-one/ui/src/components/input';
+import { Textarea } from '@maker-test-one/ui/src/components/textarea';
+import { Select } from '@maker-test-one/ui/src/components/select';
 import Image from "next/image";
 
 export default function Home() {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    level: 'beginner',
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!response.ok) throw new Error('Failed to create task');
+      const data = await response.json();
+      console.log('Task created:', data);
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -49,6 +88,61 @@ export default function Home() {
           >
             Read our docs
           </a>
+        </div>
+
+        <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
+          <h1 className="text-4xl font-bold mb-8">タスク管理アプリ</h1>
+          
+          <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium mb-1">
+                タイトル
+              </label>
+              <Input
+                id="title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="タスクのタイトルを入力"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-1">
+                説明
+              </label>
+              <Textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                placeholder="タスクの説明を入力"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="level" className="block text-sm font-medium mb-1">
+                難易度
+              </label>
+              <Select
+                id="level"
+                name="level"
+                value={formData.level}
+                onChange={handleChange}
+                options={[
+                  { value: 'beginner', label: '初級' },
+                  { value: 'intermediate', label: '中級' },
+                  { value: 'advanced', label: '上級' },
+                ]}
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              タスクを作成
+            </Button>
+          </form>
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
